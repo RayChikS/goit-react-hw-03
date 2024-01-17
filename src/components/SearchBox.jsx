@@ -10,7 +10,7 @@ export const SearchBox = ({ value, onChange }) => {
       <input
         className={css.field}
         type="text"
-        name="username"
+        name="search"
         id={searchId}
         value={value}
         onChange={onChange}

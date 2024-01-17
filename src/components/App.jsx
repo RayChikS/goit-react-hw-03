@@ -1,35 +1,33 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ContactForm } from './ContactForm.jsx';
 import { ContactList } from './ContactList.jsx';
 import { SearchBox } from './SearchBox.jsx';
-import { nanoid } from 'nanoid';
-import * as Yup from 'yup';
-
-const FeedbackSchema = Yup.object().shape({
-  username: Yup.string()
-    .min(2, 'Too Short!')
-    .max(50, 'Too Long!')
-    .required('Required'),
-  email: Yup.string().email('Must be a valid email!').required('Required'),
-  message: Yup.string()
-    .min(3, 'Too short')
-    .max(256, 'Too long')
-    .required('Required'),
-  level: Yup.string().oneOf(['good', 'neutral', 'bad']).required('Required'),
-});
 
 export const App = () => {
-  const initialContacts = {
-    name: '',
-    number: '',
-    id: nanoid(),
-  };
-
-  const [contacts, setContacts] = useState(initialContacts);
+  const [contacts, setContacts] = useState([]);
   const [filter, setFilter] = useState('');
+
+  useEffect(() => {
+    const savedContacts = JSON.parse(localStorage.getItem('contacts')) || [];
+    setContacts(savedContacts);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
   const handleFilterChange = e => {
     setFilter(e.target.value);
+  };
+
+  const handleAddContact = newContact => {
+    setContacts(prevContacts => [...prevContacts, newContact]);
+  };
+
+  const handleDeleteContact = contactId => {
+    setContacts(prevContacts =>
+      prevContacts.filter(contact => contact.id !== contactId)
+    );
   };
 
   const filteredContacts = contacts.filter(contact =>
@@ -39,9 +37,12 @@ export const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
-      <ContactForm />
+      <ContactForm onSubmitContact={handleAddContact} />
       <SearchBox value={filter} onChange={handleFilterChange} />
-      <ContactList contacts={filteredContacts} />
+      <ContactList
+        contacts={filteredContacts}
+        onDeleteContact={handleDeleteContact}
+      />
     </div>
   );
 };

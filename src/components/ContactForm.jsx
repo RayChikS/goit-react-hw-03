@@ -1,18 +1,40 @@
 import { Formik, Form, Field } from 'formik';
 import { useId } from 'react';
 import css from './ContactForm.module.css';
+import * as Yup from 'yup';
+import { nanoid } from 'nanoid';
 
-export const ContactForm = () => {
+const FeedbackSchema = Yup.object().shape({
+  username: Yup.string()
+    .min(3, 'Too Short!')
+    .max(50, 'Too Long!')
+    .required('Required'),
+});
+
+export const ContactForm = ({ onSubmitContact }) => {
   const userNameId = useId();
   const numberId = useId();
 
   const handleSubmit = (values, actions) => {
-    console.log(values);
+    const newContact = {
+      name: values.username,
+      number: values.phone,
+      id: nanoid(),
+    };
+
+    onSubmitContact(newContact);
     actions.resetForm();
   };
 
   return (
-    <Formik initialValues={{}} onSubmit={handleSubmit}>
+    <Formik
+      initialValues={{
+        username: '',
+        phone: '',
+      }}
+      onSubmit={handleSubmit}
+      validationSchema={FeedbackSchema}
+    >
       <Form className={css.form}>
         <label htmlFor={userNameId}>Name</label>
         <Field

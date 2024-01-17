@@ -2,8 +2,12 @@ import { BsFillTelephoneFill } from 'react-icons/bs';
 import { FaUser } from 'react-icons/fa';
 import css from './Contact.module.css';
 
-export const Contact = ({ contact }) => {
+export const Contact = ({ contact, onDeleteContact }) => {
   const { id, name, number } = contact;
+
+  const handleDeleteClick = () => {
+    onDeleteContact(id);
+  };
 
   return (
     <li key={id} className={css.contactItem}>
@@ -18,7 +22,7 @@ export const Contact = ({ contact }) => {
         </div>
       </div>
 
-      <button className={css.btn} type="module">
+      <button className={css.btn} type="module" onClick={handleDeleteClick}>
         Delete
       </button>
     </li>
