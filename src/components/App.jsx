@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ContactForm } from './ContactForm.jsx';
 import { ContactList } from './ContactList.jsx';
 import { SearchBox } from './SearchBox.jsx';
@@ -6,6 +6,7 @@ import { SearchBox } from './SearchBox.jsx';
 export const App = () => {
   const [contacts, setContacts] = useState([]);
   const [filter, setFilter] = useState('');
+  const [duplicateError, setDuplicateError] = useState(false); // New state for duplicate error
 
   useEffect(() => {
     const savedContacts = JSON.parse(localStorage.getItem('contacts')) || [];
@@ -21,7 +22,16 @@ export const App = () => {
   };
 
   const handleAddContact = newContact => {
-    setContacts(prevContacts => [...prevContacts, newContact]);
+    const isDuplicate = contacts.some(
+      contact => contact.name.toLowerCase() === newContact.name.toLowerCase()
+    );
+
+    if (isDuplicate) {
+      setDuplicateError(true);
+    } else {
+      setContacts(prevContacts => [...prevContacts, newContact]);
+      setDuplicateError(false);
+    }
   };
 
   const handleDeleteContact = contactId => {
@@ -38,6 +48,11 @@ export const App = () => {
     <div>
       <h1>Phonebook</h1>
       <ContactForm onSubmitContact={handleAddContact} />
+      {duplicateError && (
+        <p style={{ color: 'red' }}>
+          Contact with the same name already exists!
+        </p>
+      )}
       <SearchBox value={filter} onChange={handleFilterChange} />
       <ContactList
         contacts={filteredContacts}
